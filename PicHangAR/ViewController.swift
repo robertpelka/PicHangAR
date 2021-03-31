@@ -12,16 +12,35 @@ import ARKit
 class ViewController: UIViewController, ARSCNViewDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
-    
-    var lastNode = SCNNode()
+    @IBOutlet weak var scanningLabel: UILabel!
+    @IBOutlet weak var foundLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        scanningLabel.layer.masksToBounds = true
+        scanningLabel.layer.cornerRadius = scanningLabel.frame.height / 2
+        scanningLabel.alpha = CGFloat(0)
+        flash(label: scanningLabel)
+        foundLabel.layer.masksToBounds = true
+        foundLabel.layer.cornerRadius = scanningLabel.frame.height / 2
         
         sceneView.delegate = self
         sceneView.autoenablesDefaultLighting = true
         
         registerGestureRecognizers()
+    }
+    
+    func flash(label: UILabel) {
+        UIView.animate(withDuration: 0.8, delay: 0, options: [.repeat, .autoreverse], animations: {
+            label.alpha = CGFloat(1)
+        }, completion: nil)
+    }
+    
+    func fadeOut(label: UILabel) {
+        UIView.animate(withDuration: 0.4, delay: 0.8, options: [], animations: {
+            label.alpha = CGFloat(0)
+        }, completion: nil)
     }
     
     func registerGestureRecognizers() {
@@ -36,17 +55,18 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     
     @objc func handleTapGesture(recognizer: UITapGestureRecognizer) {
-        let touchLocation = recognizer.location(in: sceneView)
-        let hitTestResults = sceneView.hitTest(touchLocation, options: nil)
-        if let hitTestResult = hitTestResults.first {
-            lastNode = hitTestResult.node
-            indicateSelection(ofNode: lastNode)
+        let touchLocation = recognizer.location(in: recognizer.view)
+        
+        let hitTestResults = self.sceneView.hitTest(touchLocation, options: nil)
+        if let tappedNode = hitTestResults.first?.node {
+            indicateSelection(ofNode: tappedNode)
             return
         }
+        
         guard let query = sceneView.raycastQuery(from: touchLocation, allowing: .existingPlaneInfinite, alignment: .vertical) else {return}
         let results = sceneView.session.raycast(query)
-        if let hitResult = results.first {
-            hangPicture(atLocation: hitResult)
+        if let result = results.first {
+            hangPicture(atLocation: result)
         }
     }
     
@@ -66,31 +86,29 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     
     @objc func handlePinchGesture(recognizer: UIPinchGestureRecognizer) {
-        let touchLocation = recognizer.location(in: sceneView)
-        let hitTestResults = sceneView.hitTest(touchLocation, options: nil)
-        if let hitTestResult = hitTestResults.first {
-            lastNode = hitTestResult.node
-        }
-        if recognizer.state == .changed {
-            let pinchScaleX = Float(recognizer.scale) * lastNode.scale.x
-            let pinchScaleY = Float(recognizer.scale) * lastNode.scale.y
-            let pinchScaleZ = Float(recognizer.scale) * lastNode.scale.z
-            lastNode.scale = SCNVector3(x: pinchScaleX, y: pinchScaleY, z: pinchScaleZ)
-            recognizer.scale = 1
+        let touchLocation = recognizer.location(in: recognizer.view)
+        
+        let hitTestResults = self.sceneView.hitTest(touchLocation, options: nil)
+        if let tappedNode = hitTestResults.first?.node {
+            if recognizer.state == .changed {
+                let pinchScaleX = Float(recognizer.scale) * tappedNode.scale.x
+                let pinchScaleY = Float(recognizer.scale) * tappedNode.scale.y
+                let pinchScaleZ = Float(recognizer.scale) * tappedNode.scale.z
+                tappedNode.scale = SCNVector3(x: pinchScaleX, y: pinchScaleY, z: pinchScaleZ)
+                recognizer.scale = 1
+            }
         }
     }
     
     @objc func handlePanGesture(recognizer: UIPanGestureRecognizer) {
         let touchLocation = recognizer.location(in: recognizer.view)
+        
         guard let query = sceneView.raycastQuery(from: touchLocation, allowing: .existingPlaneInfinite, alignment: .vertical) else {return}
         let results = sceneView.session.raycast(query)
+        guard let result = results.first else {return}
 
-        guard let result = results.first else {
-            return
-        }
-
-        let hits = self.sceneView.hitTest(recognizer.location(in: recognizer.view), options: nil)
-        if let tappedNode = hits.first?.node {
+        let hitTestResults = self.sceneView.hitTest(touchLocation, options: nil)
+        if let tappedNode = hitTestResults.first?.node {
             let position = SCNVector3Make(result.worldTransform.columns.3.x, result.worldTransform.columns.3.y, result.worldTransform.columns.3.z)
             tappedNode.position = position
         }
@@ -123,21 +141,27 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             y: location.y,
             z: location.z)
         sceneView.scene.rootNode.addChildNode(frameNode)
-        lastNode = frameNode
     }
     
     //MARK: - ARSCNViewDelegateMethods
     
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
+        DispatchQueue.main.async {
+            if let scnLabel = self.scanningLabel {
+                scnLabel.removeFromSuperview()
+            }
+            self.foundLabel.isHidden = false
+            self.fadeOut(label: self.foundLabel)
+        }
         guard let planeAnchor = anchor as? ARPlaneAnchor else {return}
         let planeNode = createPlane(withPlaneAnchor: planeAnchor)
         node.addChildNode(planeNode)
     }
     
     func createPlane(withPlaneAnchor planeAnchor: ARPlaneAnchor) -> SCNNode {
-        let plane = SCNPlane(width: 1, height: 1)
-        plane.firstMaterial?.diffuse.contents = UIColor(white: 1, alpha: 0.6)
+        let plane = SCNPlane(width: CGFloat(planeAnchor.extent.x), height: CGFloat(planeAnchor.extent.z))
         let planeNode = SCNNode()
+        planeNode.isHidden = true
         planeNode.position = SCNVector3(x: planeAnchor.center.x, y: 0, z: planeAnchor.center.z)
         planeNode.transform = SCNMatrix4MakeRotation(-Float.pi/2, 1, 0, 0)
         planeNode.geometry = plane
