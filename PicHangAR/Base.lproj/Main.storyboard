@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BV1-FR-VrT">
-    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <device id="retina6_0" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
@@ -13,14 +13,14 @@
             <objects>
                 <viewController id="BV1-FR-VrT" customClass="ViewController" customModule="PicHangAR" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="U0K-SW-4ec">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <arscnView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BrB-h1-WRS">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                                <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
                             </arscnView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Looking for a wall" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Gx3-36-Igs">
-                                <rect key="frame" x="102" y="423" width="210" height="50"/>
+                                <rect key="frame" x="90" y="397" width="210" height="50"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="210" id="PLU-ws-Sg2"/>
@@ -31,7 +31,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Found a wall!" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="L08-jn-NY6">
-                                <rect key="frame" x="102" y="423" width="210" height="50"/>
+                                <rect key="frame" x="90" y="397" width="210" height="50"/>
                                 <color key="backgroundColor" red="0.096732260087043054" green="0.697054929735339" blue="0.0" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="210" id="6bf-XE-sfs"/>
@@ -41,10 +41,22 @@
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Vxc-5e-WwP">
+                                <rect key="frame" x="160" y="740" width="70" height="70"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="70" id="Hzq-Ox-yFb"/>
+                                    <constraint firstAttribute="height" constant="70" id="noJ-kY-98L"/>
+                                </constraints>
+                                <state key="normal" image="doge"/>
+                                <connections>
+                                    <action selector="choosePictureButtonPressed:" destination="BV1-FR-VrT" eventType="touchUpInside" id="HXM-mm-bs0"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="fQZ-KI-GVf"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="fQZ-KI-GVf" firstAttribute="bottom" secondItem="Vxc-5e-WwP" secondAttribute="bottom" id="2ZB-pB-Xkz"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="leading" secondItem="fQZ-KI-GVf" secondAttribute="leading" id="GsS-dJ-CKf"/>
                             <constraint firstItem="Gx3-36-Igs" firstAttribute="centerX" secondItem="U0K-SW-4ec" secondAttribute="centerX" id="LDD-dO-n1X"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="bottom" secondItem="U0K-SW-4ec" secondAttribute="bottom" id="VpT-BR-CcM"/>
@@ -53,9 +65,11 @@
                             <constraint firstItem="Gx3-36-Igs" firstAttribute="centerY" secondItem="U0K-SW-4ec" secondAttribute="centerY" id="ehm-m1-5FD"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="top" secondItem="U0K-SW-4ec" secondAttribute="top" id="rJc-2c-zQA"/>
                             <constraint firstItem="L08-jn-NY6" firstAttribute="centerY" secondItem="U0K-SW-4ec" secondAttribute="centerY" id="tiv-Jv-d3A"/>
+                            <constraint firstItem="Vxc-5e-WwP" firstAttribute="centerX" secondItem="U0K-SW-4ec" secondAttribute="centerX" id="y88-z4-3Hq"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="choosePictureButton" destination="Vxc-5e-WwP" id="1fm-c7-oZ0"/>
                         <outlet property="foundLabel" destination="L08-jn-NY6" id="woo-g7-vEd"/>
                         <outlet property="scanningLabel" destination="Gx3-36-Igs" id="QpI-4v-BFY"/>
                         <outlet property="sceneView" destination="BrB-h1-WRS" id="5nT-qQ-ynl"/>
@@ -67,6 +81,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="doge" width="500" height="751"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
