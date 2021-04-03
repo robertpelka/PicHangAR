@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  mainViewController.swift
 //  PicHangAR
 //
 //  Created by Robert Pelka on 28/03/2021.
@@ -9,7 +9,7 @@ import UIKit
 import SceneKit
 import ARKit
 
-class ViewController: UIViewController, ARSCNViewDelegate {
+class mainViewController: UIViewController, ARSCNViewDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
     @IBOutlet weak var scanningLabel: UILabel!
@@ -17,6 +17,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     @IBOutlet weak var choosePictureButton: UIButton!
     
     let imagePicker = UIImagePickerController()
+    var preserveAspectRatio = true
+    var pictureAspectRatio: CGFloat = 0.668
+    var frameHeight: CGFloat = 0.279
+    var frameWidth: CGFloat = 0.2
+    var borderThickness: CGFloat = 0.02
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,7 +55,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     
     func animatefadeOut(label: UILabel) {
-        UIView.animate(withDuration: 0.4, delay: 0.4, options: [], animations: {
+        UIView.animate(withDuration: 0.4, delay: 0.6, options: [], animations: {
             label.alpha = CGFloat(0)
         }, completion: nil)
     }
@@ -82,15 +88,14 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     
     func hangPicture(atLocation hitResult: ARRaycastResult) {
-        let choosenPicture = choosePictureButton.image(for: .normal)
-        let pictureAspectRatio = (choosenPicture?.size.width ?? 4) / (choosenPicture?.size.height ?? 3)
-        let picture = SCNPlane(width: 0.2*pictureAspectRatio, height: 0.2)
+        let pictureHeight = frameHeight - (borderThickness * 2)
+        let pictureWidth = preserveAspectRatio ? frameWidth - (borderThickness * 2) : pictureHeight * pictureAspectRatio
+        let picture = SCNPlane(width: pictureWidth, height: pictureHeight)
         picture.firstMaterial?.diffuse.contents = choosePictureButton.image(for: .normal)
         let pictureNode = SCNNode(geometry: picture)
         
-        let frameThickness: CGFloat = 0.05
         let frameDepth: CGFloat = 0.016
-        let frame = SCNBox(width: picture.width+frameThickness, height: picture.height+frameThickness, length: frameDepth, chamferRadius: 0.003)
+        let frame = SCNBox(width: frameWidth, height: frameHeight, length: frameDepth, chamferRadius: 0.001)
         frame.firstMaterial?.diffuse.contents = UIColor.white
         let frameNode = SCNNode(geometry: frame)
         
@@ -159,6 +164,31 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if(segue.identifier == K.Segues.goToFrameSizeVC) {
+            let frameSizeVC = segue.destination as! frameSizeViewController
+            frameSizeVC.pictureAspectRatio = Float(pictureAspectRatio)
+        }
+    }
+    
+    @IBAction func frameSizeButtonTapped(_ sender: UIButton) {
+        performSegue(withIdentifier: K.Segues.goToFrameSizeVC, sender: self)
+    }
+    
+    @IBAction func unwindToMainViewController(segue: UIStoryboardSegue) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            DispatchQueue.main.async {
+                if let sourceSegue = segue.source as? frameSizeViewController {
+                    self.preserveAspectRatio = sourceSegue.preserveAspectRatio
+                    self.frameWidth = CGFloat(sourceSegue.widthSlider.value / 100)
+                    self.frameHeight = CGFloat(sourceSegue.heightSlider.value / 100)
+                    print("\(sourceSegue.borderSlider.value) i \(Int(sourceSegue.borderSlider.value))")
+                    self.borderThickness = CGFloat(sourceSegue.borderSlider.value / 100)
+                }
+            }
+        }
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -196,7 +226,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         planeNode.position = SCNVector3(x: planeAnchor.center.x, y: 0, z: planeAnchor.center.z)
         planeNode.transform = SCNMatrix4MakeRotation(-Float.pi/2, 1, 0, 0)
         planeNode.geometry = plane
-        print("Plane detected")
         return planeNode
     }
     
@@ -204,7 +233,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
 //MARK: - UIImagePickerControllerDelegate, UINavigationControllerDelegate
 
-extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+extension mainViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     @IBAction func choosePictureButtonPressed(_ sender: UIButton) {
         present(imagePicker, animated: true, completion: nil)
     }
@@ -212,8 +241,16 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let choosenImage = info[.originalImage] as? UIImage {
             choosePictureButton.setImage(choosenImage, for: .normal)
+            pictureAspectRatio = choosenImage.size.width / choosenImage.size.height
+            calculateFrameHeight(for: pictureAspectRatio)
             imagePicker.dismiss(animated: true, completion: nil)
         }
+    }
+    
+    func calculateFrameHeight(for aspectRatio: CGFloat) {
+        let pictureWidth = frameWidth - (2 * borderThickness)
+        let pictureHeight = pictureWidth / aspectRatio
+        frameHeight = pictureHeight + (2 * borderThickness)
     }
     
 }
