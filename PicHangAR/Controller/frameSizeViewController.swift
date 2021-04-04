@@ -15,31 +15,60 @@ class frameSizeViewController: UIViewController {
     @IBOutlet weak var heightSlider: UISlider!
     @IBOutlet weak var borderLabel: UILabel!
     @IBOutlet weak var borderSlider: UISlider!
+    @IBOutlet weak var ratioSwitch: UISwitch!
     @IBOutlet weak var doneButton: UIButton!
     
-    var preserveAspectRatio = true
-    var pictureAspectRatio: Float = 0.668
+    var frame = Frame()
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        widthSlider.value = 55.0
-        heightSlider.value = 69.2
         doneButton.layer.cornerRadius = 15
-        
-        recalculateMaximumBorderThickness()
-        widthChanged(widthSlider)
+        widthSlider.value = frame.width
+        heightSlider.value = frame.height
+        borderSlider.maximumValue = min(widthSlider.value, heightSlider.value) / 2 - 1
+        borderSlider.value = frame.borderThickness
+        refreshLabels()
+        if frame.preserveAspectRatio {
+            ratioSwitch.isOn = true
+        }
+        else {
+            ratioSwitch.isOn = false
+            preserveAspectRatioSwitched(ratioSwitch)
+        }
+    }
+    
+    func refreshLabels() {
+        borderLabel.text = String(format: "%.1f", borderSlider.value) + " cm"
+        widthLabel.text = String(Int(round(widthSlider.value))) + " cm"
+        heightLabel.text = String(Int(round(heightSlider.value))) + " cm"
+    }
+    
+    func updateWidth() {
+        frame.calculateFrameWidth()
+        widthSlider.value = Float(frame.width)
+        widthLabel.text = String(Int(round(widthSlider.value))) + " cm"
+    }
+    
+    func updateHeight() {
+        frame.calculateFrameHeight()
+        heightSlider.value = Float(frame.height)
+        heightLabel.text = String(Int(round(heightSlider.value))) + " cm"
     }
     
     @IBAction func widthChanged(_ sender: UISlider) {
-        if preserveAspectRatio {
-            calculateFrameHeight()
+        frame.width = sender.value
+        
+        if frame.preserveAspectRatio {
+            updateHeight()
             
             if heightSlider.value >= heightSlider.maximumValue {
-                calculateFrameWidth()
+                frame.height = heightSlider.maximumValue
+                updateWidth()
             }
             else if heightSlider.value <= heightSlider.minimumValue {
-                calculateFrameWidth()
+                frame.height = heightSlider.maximumValue
+                updateWidth()
             }
         }
         
@@ -47,54 +76,51 @@ class frameSizeViewController: UIViewController {
         recalculateMaximumBorderThickness()
     }
     
-    func calculateFrameHeight() {
-        let pictureWidth = widthSlider.value - (2 * borderSlider.value)
-        let pictureHeight = pictureWidth / pictureAspectRatio
-        heightSlider.value = pictureHeight + (2 * borderSlider.value)
-        heightLabel.text = String(Int(round(heightSlider.value))) + " cm"
-    }
-    
-    func calculateFrameWidth() {
-        let pictureHeight = heightSlider.value - (2 * borderSlider.value)
-        let pictureWidth = pictureHeight * pictureAspectRatio
-        widthSlider.value = pictureWidth + (2 * borderSlider.value)
-        widthLabel.text = String(Int(round(widthSlider.value))) + " cm"
-    }
-    
     @IBAction func heightChanged(_ sender: UISlider) {
+        frame.height = sender.value
         heightLabel.text = String(Int(round(sender.value))) + " cm"
         recalculateMaximumBorderThickness()
     }
     
     func recalculateMaximumBorderThickness() {
         borderSlider.maximumValue = min(widthSlider.value, heightSlider.value) / 2 - 1
-        borderSlider.value = borderSlider.maximumValue / 2
+        if frame.isModern {
+            borderSlider.value = borderSlider.maximumValue / 2
+        }
+        else {
+            borderSlider.value = borderSlider.maximumValue / 5
+        }
+        frame.borderThickness = borderSlider.value
         borderLabel.text = String(format: "%.1f", borderSlider.value) + " cm"
     }
     
     @IBAction func preserveAspectRatioSwitched(_ sender: UISwitch) {
         if sender.isOn {
-            preserveAspectRatio = true
+            frame.preserveAspectRatio = true
             heightSlider.isEnabled = false
             heightSlider.tintColor = UIColor.secondaryLabel
             widthChanged(widthSlider)
         }
         else {
-            preserveAspectRatio = false
+            frame.preserveAspectRatio = false
             heightSlider.isEnabled = true
             heightSlider.tintColor = .none
         }
     }
     
     @IBAction func borderThicknessChanged(_ sender: UISlider) {
-        if preserveAspectRatio {
-            calculateFrameHeight()
+        frame.borderThickness = borderSlider.value
+        
+        if frame.preserveAspectRatio {
+            updateHeight()
             
             if heightSlider.value >= heightSlider.maximumValue {
-                calculateFrameWidth()
+                frame.height = heightSlider.maximumValue
+                updateWidth()
             }
             else if heightSlider.value <= heightSlider.minimumValue {
-                calculateFrameWidth()
+                frame.height = heightSlider.maximumValue
+                updateWidth()
             }
         }
         

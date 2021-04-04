@@ -75,6 +75,9 @@
                                             <constraint firstAttribute="width" constant="42" id="hi9-Qx-bgJ"/>
                                         </constraints>
                                         <state key="normal" image="frames"/>
+                                        <connections>
+                                            <action selector="frameTypeButtonTapped:" destination="BV1-FR-VrT" eventType="touchUpInside" id="e26-9W-2Od"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                             </stackView>
@@ -101,11 +104,135 @@
                         <outlet property="scanningLabel" destination="Gx3-36-Igs" id="QpI-4v-BFY"/>
                         <outlet property="sceneView" destination="BrB-h1-WRS" id="5nT-qQ-ynl"/>
                         <segue destination="XYx-VK-ZhM" kind="presentation" identifier="goToFrameSizeViewController" id="jbL-qF-f15"/>
+                        <segue destination="jNS-qJ-tfi" kind="presentation" identifier="goToFrameTypeViewController" id="7E4-ur-o83"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SZV-WD-TEh" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-231" y="31"/>
+            <point key="canvasLocation" x="-380" y="86"/>
+        </scene>
+        <!--Frame Type View Controller-->
+        <scene sceneID="glj-9L-CmV">
+            <objects>
+                <viewController id="jNS-qJ-tfi" customClass="frameTypeViewController" customModule="PicHangAR" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="X5n-or-2AV">
+                        <rect key="frame" x="0.0" y="0.0" width="390" height="790"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="uSS-sN-Sba">
+                                <rect key="frame" x="30" y="50" width="330" height="686"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" alignment="top" spacing="24" translatesAutoresizingMaskIntoConstraints="NO" id="9RJ-AX-LEy">
+                                        <rect key="frame" x="0.0" y="0.0" width="330" height="107.66666666666667"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Frame type" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8J1-fX-Kbf">
+                                                <rect key="frame" x="0.0" y="0.0" width="142.66666666666666" height="33.666666666666664"/>
+                                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="28"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="KZl-Yr-ROz">
+                                                <rect key="frame" x="0.0" y="57.666666666666671" width="330" height="50"/>
+                                                <subviews>
+                                                    <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="kh7-8r-xVb">
+                                                        <rect key="frame" x="98.666666666666657" y="9.6666666666666572" width="133" height="32"/>
+                                                        <segments>
+                                                            <segment title="Modern"/>
+                                                            <segment title="Classic"/>
+                                                        </segments>
+                                                        <connections>
+                                                            <action selector="typeSegmentedControlChanged:" destination="jNS-qJ-tfi" eventType="valueChanged" id="dL0-Ec-1AN"/>
+                                                        </connections>
+                                                    </segmentedControl>
+                                                </subviews>
+                                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                                <constraints>
+                                                    <constraint firstItem="kh7-8r-xVb" firstAttribute="centerX" secondItem="KZl-Yr-ROz" secondAttribute="centerX" id="AW1-bM-gzq"/>
+                                                    <constraint firstItem="kh7-8r-xVb" firstAttribute="centerY" secondItem="KZl-Yr-ROz" secondAttribute="centerY" id="Ivc-tJ-IlU"/>
+                                                    <constraint firstAttribute="height" constant="50" id="veb-Gy-yeu"/>
+                                                </constraints>
+                                            </view>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstItem="KZl-Yr-ROz" firstAttribute="leading" secondItem="9RJ-AX-LEy" secondAttribute="leading" id="91P-16-Czo"/>
+                                            <constraint firstAttribute="trailing" secondItem="KZl-Yr-ROz" secondAttribute="trailing" id="fes-hc-bKb"/>
+                                        </constraints>
+                                    </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" alignment="top" spacing="24" translatesAutoresizingMaskIntoConstraints="NO" id="ExW-fo-AvY">
+                                        <rect key="frame" x="0.0" y="210.00000000000003" width="330" height="323.66666666666674"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Frame material" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cWh-2i-MRY">
+                                                <rect key="frame" x="0.0" y="0.0" width="189" height="33.666666666666664"/>
+                                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="28"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="QKA-7Z-nkY">
+                                                <rect key="frame" x="0.0" y="57.666666666666686" width="330" height="266"/>
+                                                <subviews>
+                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="wuR-Nu-s92">
+                                                        <rect key="frame" x="98.666666666666657" y="0.0" width="133" height="50"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" relation="lessThanOrEqual" constant="133" id="RUW-5N-F3E"/>
+                                                            <constraint firstAttribute="width" relation="lessThanOrEqual" constant="133" id="vvB-il-gPd"/>
+                                                        </constraints>
+                                                    </imageView>
+                                                    <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Hhz-N4-jO8">
+                                                        <rect key="frame" x="5" y="50" width="320" height="216"/>
+                                                    </pickerView>
+                                                </subviews>
+                                            </stackView>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstAttribute="trailing" secondItem="QKA-7Z-nkY" secondAttribute="trailing" id="05C-Hj-4ST"/>
+                                            <constraint firstItem="QKA-7Z-nkY" firstAttribute="leading" secondItem="ExW-fo-AvY" secondAttribute="leading" id="uCs-cF-X3J"/>
+                                        </constraints>
+                                    </stackView>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hhv-1X-UG3">
+                                        <rect key="frame" x="65" y="636" width="200" height="50"/>
+                                        <color key="backgroundColor" red="0.87843137250000003" green="0.25098039220000001" blue="0.57254901960000004" alpha="1" colorSpace="calibratedRGB"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="50" id="D04-4S-UXe"/>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="200" id="dRR-Ha-SRi"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="18"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <state key="normal" title="Done"/>
+                                        <connections>
+                                            <action selector="doneButtonTapped:" destination="XYx-VK-ZhM" eventType="touchUpInside" id="Kyn-1U-vFi"/>
+                                            <action selector="doneButtonTapped:" destination="jNS-qJ-tfi" eventType="touchUpInside" id="ye7-VV-1Gy"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="9RJ-AX-LEy" firstAttribute="leading" secondItem="uSS-sN-Sba" secondAttribute="leading" id="0tq-gc-ziY"/>
+                                    <constraint firstAttribute="trailing" secondItem="9RJ-AX-LEy" secondAttribute="trailing" id="I1v-b7-8E3"/>
+                                    <constraint firstAttribute="trailing" secondItem="ExW-fo-AvY" secondAttribute="trailing" id="IoS-jB-fMM"/>
+                                    <constraint firstItem="ExW-fo-AvY" firstAttribute="leading" secondItem="uSS-sN-Sba" secondAttribute="leading" id="lZO-9d-73W"/>
+                                </constraints>
+                            </stackView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="pBg-Fh-D06"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="uSS-sN-Sba" firstAttribute="leading" secondItem="X5n-or-2AV" secondAttribute="leading" constant="30" id="LJt-sZ-mA0"/>
+                            <constraint firstItem="pBg-Fh-D06" firstAttribute="trailing" secondItem="uSS-sN-Sba" secondAttribute="trailing" constant="30" id="Zm0-EI-cYa"/>
+                            <constraint firstItem="uSS-sN-Sba" firstAttribute="top" secondItem="pBg-Fh-D06" secondAttribute="top" constant="50" id="c2P-NW-LOu"/>
+                            <constraint firstItem="pBg-Fh-D06" firstAttribute="bottom" secondItem="uSS-sN-Sba" secondAttribute="bottom" constant="20" id="jR5-t1-kr1"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="doneButton" destination="hhv-1X-UG3" id="2U1-xx-vpU"/>
+                        <outlet property="materialImage" destination="wuR-Nu-s92" id="gAs-LQ-q0p"/>
+                        <outlet property="materialPicker" destination="Hhz-N4-jO8" id="eiL-Eh-Pr3"/>
+                        <outlet property="typeSegmentedControl" destination="kh7-8r-xVb" id="AsN-0s-ckN"/>
+                        <segue destination="4nF-Al-qNO" kind="unwind" identifier="goToMainViewController" unwindAction="unwindToMainViewControllerWithSegue:" id="ZZT-aa-uIN"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="HOd-dN-sLL" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <exit id="4nF-Al-qNO" userLabel="Exit" sceneMemberID="exit"/>
+            </objects>
+            <point key="canvasLocation" x="710.76923076923072" y="480.5687203791469"/>
         </scene>
         <!--Frame Size View Controller-->
         <scene sceneID="wuh-W4-baO">
@@ -317,6 +444,7 @@
                         <outlet property="doneButton" destination="NH7-to-pMw" id="bxR-rl-vsD"/>
                         <outlet property="heightLabel" destination="f1S-Wt-lpH" id="jtq-AG-6ke"/>
                         <outlet property="heightSlider" destination="Ja9-e0-MHd" id="yVS-PP-oX9"/>
+                        <outlet property="ratioSwitch" destination="A0e-Xf-6Sk" id="Dd6-0w-1Bk"/>
                         <outlet property="widthLabel" destination="dhN-GD-bl7" id="Us6-Ze-xgI"/>
                         <outlet property="widthSlider" destination="XvP-64-OLY" id="yVW-Ny-G3b"/>
                         <segue destination="5BC-WD-ecn" kind="unwind" identifier="goToMainViewController" unwindAction="unwindToMainViewControllerWithSegue:" id="rTY-XG-PfS"/>
