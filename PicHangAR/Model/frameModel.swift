@@ -28,4 +28,14 @@ struct Frame {
         let pictureWidth = pictureHeight * pictureAspectRatio
         width = pictureWidth + (2 * borderThickness)
     }
+    
+    mutating func resetBorderThickness() {
+        let maximumValue = min(width, height) / 2 - 1
+        if isModern {
+            borderThickness = maximumValue / 2
+        }
+        else {
+            borderThickness = maximumValue / 5
+        }
+    }
 }

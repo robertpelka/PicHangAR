@@ -29,6 +29,7 @@ class frameTypeViewController: UIViewController {
         
         materialPicker.dataSource = self
         materialPicker.delegate = self
+        
         let selectedMaterialRow = materials.firstIndex(of: frame.material) ?? 0
         materialPicker.selectRow(selectedMaterialRow, inComponent: 0, animated: false)
     }
@@ -38,12 +39,8 @@ class frameTypeViewController: UIViewController {
     }
     
     @IBAction func typeSegmentedControlChanged(_ sender: UISegmentedControl) {
-        if sender.selectedSegmentIndex == 0 {
-            frame.isModern = true
-        }
-        else {
-            frame.isModern = false
-        }
+        frame.isModern.toggle()
+        frame.resetBorderThickness()
     }
 }
 

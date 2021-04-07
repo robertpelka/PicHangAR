@@ -18,6 +18,7 @@ class mainViewController: UIViewController, ARSCNViewDelegate {
     
     let imagePicker = UIImagePickerController()
     var frame = Frame()
+    var touchDifference = SCNVector3()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -64,14 +65,16 @@ class mainViewController: UIViewController, ARSCNViewDelegate {
         
         let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture))
         self.sceneView.addGestureRecognizer(panGestureRecognizer)
+        
+        let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPressGesture))
+        self.sceneView.addGestureRecognizer(longPressGestureRecognizer)
     }
     
     @objc func handleTapGesture(recognizer: UITapGestureRecognizer) {
         let touchLocation = recognizer.location(in: recognizer.view)
         
         let hitTestResults = self.sceneView.hitTest(touchLocation, options: nil)
-        if let tappedNode = hitTestResults.first?.node {
-            indicateSelection(ofNode: tappedNode)
+        if hitTestResults.first?.node != nil {
             return
         }
         
@@ -83,40 +86,13 @@ class mainViewController: UIViewController, ARSCNViewDelegate {
     }
     
     func hangPicture(atLocation hitResult: ARRaycastResult) {
-        let pictureHeight = frame.height - (frame.borderThickness * 2)
-        let pictureWidth = frame.preserveAspectRatio ? frame.width - (frame.borderThickness * 2) : pictureHeight * frame.pictureAspectRatio
-        let picture = SCNPlane(width: CGFloat(pictureWidth / 100), height: CGFloat(pictureHeight / 100))
-        picture.firstMaterial?.diffuse.contents = choosePictureButton.image(for: .normal)
-        picture.firstMaterial?.lightingModel = .blinn
-        picture.firstMaterial?.specular.contents = UIColor(white: 0.6, alpha: 1.0)
-        picture.firstMaterial?.shininess = 100
-        let pictureNode = SCNNode(geometry: picture)
+        let pictureNode = createPicture()
         
         let frameDepth = min(CGFloat(max(frame.width, frame.height) / 1000), 0.03)
-        let frameBox = SCNBox(width: CGFloat(frame.width / 100), height: CGFloat(frame.height / 100), length: frameDepth, chamferRadius: 0.001)
-        frameBox.firstMaterial?.diffuse.contents = UIImage(named: "art.scnassets/\(frame.material)Color.jpg")
-        frameBox.firstMaterial?.normal.contents = UIImage(named: "art.scnassets/\(frame.material)Normal.jpg")
-        frameBox.firstMaterial?.roughness.contents = UIImage(named: "art.scnassets/\(frame.material)Roughness.jpg")
-        if frame.material == "Gold" || frame.material == "Silver" {
-            frameBox.firstMaterial?.lightingModel = .physicallyBased
-            frameBox.firstMaterial?.metalness.contents = UIColor(white: 0.7, alpha: 1.0)
-            frameBox.firstMaterial?.shininess = 100
-        }
-        let frameNode = SCNNode(geometry: frameBox)
+        let frameNode = createFrame(depth: frameDepth)
         
         if frame.isModern {
-            let margin = CGFloat(frame.borderThickness / 100) / 2
-            let background = SCNPlane(width: CGFloat(frame.width / 100) - margin, height: CGFloat(frame.height / 100) - margin)
-            if frame.material == "White" {
-                background.firstMaterial?.diffuse.contents = UIImage(named: "art.scnassets/BlackColor.jpg")
-            }
-            else {
-                background.firstMaterial?.diffuse.contents = UIImage(named: "art.scnassets/WhiteColor.jpg")
-            }
-            background.firstMaterial?.lightingModel = .blinn
-            background.firstMaterial?.specular.contents = UIColor(white: 0.6, alpha: 1.0)
-            background.firstMaterial?.shininess = 100
-            let backgroundNode = SCNNode(geometry: background)
+            let backgroundNode = createBackground()
             
             frameNode.addChildNode(backgroundNode)
             
@@ -147,19 +123,43 @@ class mainViewController: UIViewController, ARSCNViewDelegate {
         sceneView.scene.rootNode.addChildNode(frameNode.flattenedClone())
     }
     
-    func indicateSelection(ofNode node: SCNNode) {
-        guard let nodeMaterial = node.geometry?.firstMaterial else {return}
-        
-        SCNTransaction.begin()
-        SCNTransaction.animationDuration = 0.3
-        SCNTransaction.completionBlock = {
-            SCNTransaction.begin()
-            SCNTransaction.animationDuration = 0.3
-            nodeMaterial.emission.contents = UIColor.black
-            SCNTransaction.commit()
+    func createPicture() -> SCNNode {
+        let pictureHeight = frame.height - (frame.borderThickness * 2)
+        let pictureWidth = frame.preserveAspectRatio ? frame.width - (frame.borderThickness * 2) : pictureHeight * frame.pictureAspectRatio
+        let picture = SCNPlane(width: CGFloat(pictureWidth / 100), height: CGFloat(pictureHeight / 100))
+        picture.firstMaterial?.diffuse.contents = choosePictureButton.image(for: .normal)
+        picture.firstMaterial?.lightingModel = .blinn
+        picture.firstMaterial?.specular.contents = UIColor(white: 0.6, alpha: 1.0)
+        picture.firstMaterial?.shininess = 100
+        return SCNNode(geometry: picture)
+    }
+    
+    func createFrame(depth frameDepth: CGFloat) -> SCNNode {
+        let frameBox = SCNBox(width: CGFloat(frame.width / 100), height: CGFloat(frame.height / 100), length: frameDepth, chamferRadius: 0.001)
+        frameBox.firstMaterial?.diffuse.contents = UIImage(named: "art.scnassets/\(frame.material)Color.jpg")
+        frameBox.firstMaterial?.normal.contents = UIImage(named: "art.scnassets/\(frame.material)Normal.jpg")
+        frameBox.firstMaterial?.roughness.contents = UIImage(named: "art.scnassets/\(frame.material)Roughness.jpg")
+        if frame.material == "Gold" || frame.material == "Silver" {
+            frameBox.firstMaterial?.lightingModel = .physicallyBased
+            frameBox.firstMaterial?.metalness.contents = UIColor(white: 0.7, alpha: 1.0)
+            frameBox.firstMaterial?.shininess = 100
         }
-        nodeMaterial.emission.contents = UIColor.blue
-        SCNTransaction.commit()
+        return SCNNode(geometry: frameBox)
+    }
+    
+    func createBackground() -> SCNNode {
+        let margin = CGFloat(frame.borderThickness / 100) / 2
+        let background = SCNPlane(width: CGFloat(frame.width / 100) - margin, height: CGFloat(frame.height / 100) - margin)
+        if frame.material == "White" {
+            background.firstMaterial?.diffuse.contents = UIImage(named: "art.scnassets/BlackColor.jpg")
+        }
+        else {
+            background.firstMaterial?.diffuse.contents = UIImage(named: "art.scnassets/WhiteColor.jpg")
+        }
+        background.firstMaterial?.lightingModel = .blinn
+        background.firstMaterial?.specular.contents = UIColor(white: 0.6, alpha: 1.0)
+        background.firstMaterial?.shininess = 100
+        return SCNNode(geometry: background)
     }
     
     @objc func handlePinchGesture(recognizer: UIPinchGestureRecognizer) {
@@ -186,8 +186,25 @@ class mainViewController: UIViewController, ARSCNViewDelegate {
 
         let hitTestResults = self.sceneView.hitTest(touchLocation, options: nil)
         if let tappedNode = hitTestResults.first?.node {
-            let position = SCNVector3Make(result.worldTransform.columns.3.x, result.worldTransform.columns.3.y, result.worldTransform.columns.3.z)
-            tappedNode.position = position
+            if recognizer.state == .began {
+                touchDifference = SCNVector3Make(result.worldTransform.columns.3.x - tappedNode.position.x,
+                                                 result.worldTransform.columns.3.y - tappedNode.position.y,
+                                                 result.worldTransform.columns.3.z - tappedNode.position.z)
+            }
+            let newPosition = SCNVector3Make(result.worldTransform.columns.3.x - touchDifference.x,
+                                             result.worldTransform.columns.3.y - touchDifference.y,
+                                             result.worldTransform.columns.3.z - touchDifference.z)
+            tappedNode.position = newPosition
+        }
+    }
+    
+    @objc func handleLongPressGesture(recognizer: UILongPressGestureRecognizer) {
+        let touchLocation = recognizer.location(in: recognizer.view)
+        
+        let hitTestResults = self.sceneView.hitTest(touchLocation, options: nil)
+        if let tappedNode = hitTestResults.first?.node {
+            AudioServicesPlaySystemSound(1520)
+            tappedNode.removeFromParentNode()
         }
     }
     
