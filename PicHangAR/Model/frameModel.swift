@@ -37,5 +37,6 @@ struct Frame {
         else {
             borderThickness = maximumValue / 5
         }
+        calculateFrameHeight()
     }
 }
